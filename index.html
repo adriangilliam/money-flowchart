@@ -3,195 +3,302 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Money Flowchart</title>
-<meta name="description" content="An interactive walk-through of the r/personalfinance income spending flowchart (US).">
+<title>Next Dollar</title>
+<meta name="description" content="Where should your next dollar go? An interactive take on the r/personalfinance flowchart (US).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f6f5f1; --card: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3e1da;
-    --p0: #4a5560; --p1: #d6362b; --p2: #e2b100; --p3: #1f9d55; --p4: #18a8c9; --p5: #1f6fb2; --p6: #7b3fa0;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #141416; --card: #1e1e22; --ink: #f2f2f4; --muted: #a0a0a8; --line: #2e2e34; --p0: #9aa8b5; }
+    --bg: #0d1712; --bg2: #13221a; --paper: #f4ecd8; --ink: #1b1a17; --cream: #efe6cf; --dim: #8fa396;
+    --gold: #e8b64a; --gold2: #b8862b;
+    --p0: #9fb1a5; --p1: #ff6b57; --p2: #f2c94c; --p3: #3ddc84; --p4: #4fd1e8; --p5: #6f9cff; --p6: #c08bff;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
-  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  header p { margin: 0; color: var(--muted); font-size: .95rem; }
-  .tabs { display: flex; gap: 8px; margin: 20px 0; }
-  .tabs button { flex: 1; padding: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
-    border-radius: 10px; font: inherit; cursor: pointer; }
-  .tabs button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  .phases { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
-  .phases div { height: 8px; border-radius: 4px; background: var(--line); }
-  .phase-label { font-size: .85rem; color: var(--muted); margin-bottom: 16px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--c);
-    border-radius: 14px; padding: 22px; }
-  .kind { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--c); font-weight: 700; }
-  .card h2 { font-size: 1.3rem; margin: 6px 0 8px; }
-  .card p { margin: 0; color: var(--muted); }
-  .btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-  .btns button { flex: 1; min-width: 120px; padding: 14px; border-radius: 10px; font: inherit; font-weight: 600;
-    cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
-  .btns button.primary { background: var(--c); border-color: var(--c); color: #fff; }
+  html, body { margin: 0; background: var(--bg); color: var(--cream); }
+  body { font: 16px/1.55 Inter, system-ui, sans-serif; min-height: 100vh;
+    background: radial-gradient(1200px 600px at 50% -200px, #1f3a2b 0%, transparent 70%), var(--bg); }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 16px 80px; }
+
+  /* masthead */
+  .mast { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+  .mast h1 { font: 900 clamp(2rem, 7vw, 3.4rem)/.95 Fraunces, serif; margin: 0; letter-spacing: -.02em; }
+  .mast h1 em { color: var(--gold); font-style: italic; }
+  .mast p { margin: 8px 0 0; color: var(--dim); font-size: .95rem; }
+  .switch { display: flex; background: var(--bg2); border-radius: 999px; padding: 4px; border: 1px solid #24382c; }
+  .switch button { background: none; border: 0; color: var(--dim); font: 600 .85rem Inter; padding: 8px 14px;
+    border-radius: 999px; cursor: pointer; }
+  .switch button.on { background: var(--gold); color: var(--ink); }
+
+  /* jars */
+  .jars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 28px 0 10px; align-items: end; }
+  .jar { position: relative; height: 74px; border: 2px solid #2c4436; border-top: 0; border-radius: 0 0 14px 14px;
+    overflow: hidden; background: rgba(255,255,255,.02); }
+  .jar::before { content: ""; position: absolute; top: 0; left: -2px; right: -2px; height: 6px; border-radius: 3px;
+    background: #2c4436; }
+  .jar .fill { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); opacity: .9;
+    transition: height .7s cubic-bezier(.3,1.4,.5,1); }
+  .jar .fill::after { content: ""; position: absolute; top: -4px; left: 0; right: 0; height: 8px; background: var(--c);
+    border-radius: 50%; filter: brightness(1.2); }
+  .jar.cur { border-color: var(--c); box-shadow: 0 0 22px -4px var(--c); }
+  .jar .n { position: absolute; inset: auto 0 6px; text-align: center; font: 700 .8rem "JetBrains Mono", monospace;
+    color: var(--cream); mix-blend-mode: difference; }
+  .coin { position: absolute; width: 22px; height: 22px; border-radius: 50%; left: 50%; top: -30px; margin-left: -11px;
+    background: radial-gradient(circle at 35% 35%, #fff3c4, var(--gold) 45%, var(--gold2));
+    box-shadow: 0 2px 0 #7a5a1a; animation: drop .65s cubic-bezier(.5,0,.8,.4) forwards; z-index: 2; }
+  @keyframes drop { to { top: 60px; opacity: 0; transform: rotateY(720deg); } }
+  .phase { display: flex; gap: 10px; align-items: baseline; color: var(--dim); font-size: .85rem; margin-bottom: 18px; }
+  .phase b { color: var(--c); font: 700 .85rem "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; }
+
+  /* card */
+  .card { background: var(--paper); color: var(--ink); border-radius: 6px; padding: 30px 28px 26px; position: relative;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.05);
+    background-image: repeating-linear-gradient(0deg, transparent 0 31px, rgba(27,26,23,.04) 31px 32px); }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--c); border-radius: 6px 0 0 6px; }
+  .card.enter { animation: enter .45s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes enter { from { opacity: 0; transform: translateY(14px) rotate(-.6deg); } }
+  .kind { font: 600 .75rem "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .14em; color: #6b6556; }
+  .card h2 { font: 700 clamp(1.5rem, 4.6vw, 2.1rem)/1.15 Fraunces, serif; margin: 10px 0 10px; letter-spacing: -.01em; }
+  .card p { margin: 0; color: #4d483d; font-size: 1.02rem; max-width: 56ch; }
+  .btns { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .btns button { flex: 1; min-width: 130px; padding: 16px; border-radius: 6px; font: 700 1.05rem Inter; cursor: pointer;
+    border: 2px solid var(--ink); background: transparent; color: var(--ink); transition: transform .1s, background .15s;
+    display: flex; justify-content: space-between; align-items: center; }
+  .btns button:hover { transform: translateY(-2px); }
+  .btns button.primary { background: var(--ink); color: var(--paper); }
+  .btns kbd { font: 600 .72rem "JetBrains Mono", monospace; border: 1px solid currentColor; border-radius: 4px;
+    padding: 1px 6px; opacity: .55; }
   .nav { display: flex; justify-content: space-between; margin-top: 14px; }
-  .nav button { background: none; border: none; color: var(--muted); font: inherit; cursor: pointer; padding: 6px 0; }
-  .nav button:disabled { opacity: .35; cursor: default; }
-  .goals { display: grid; gap: 12px; margin-top: 16px; }
-  .goal { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-  .goal h3 { margin: 0 0 6px; font-size: 1rem; }
-  .goal p { font-size: .95rem; }
-  .history { margin-top: 28px; }
-  .history h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-  .history ol { padding-left: 20px; margin: 0; color: var(--muted); font-size: .9rem; }
-  .history li b { color: var(--ink); font-weight: 600; }
-  .full section { margin-bottom: 22px; }
-  .full h2 { font-size: 1rem; margin: 0 0 8px; color: var(--c); }
-  .full .item { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--c);
-    border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; font-size: .95rem; }
-  .full .item small { display: block; color: var(--muted); }
-  .full .item .q { font-weight: 600; }
-  .full .item .arrows { font-size: .85rem; color: var(--muted); margin-top: 4px; }
-  footer { margin-top: 40px; font-size: .8rem; color: var(--muted); }
+  .nav button { background: none; border: 0; color: var(--dim); font: 600 .9rem Inter; cursor: pointer; padding: 6px 0; }
+  .nav button:disabled { opacity: .3; cursor: default; }
+
+  .forks { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+  @media (max-width: 560px) { .forks { grid-template-columns: 1fr; } }
+  .fork { border: 2px solid var(--ink); border-radius: 6px; padding: 16px; }
+  .fork .tag { font: 600 .7rem "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: #6b6556; }
+  .fork h3 { font: 700 1.2rem Fraunces, serif; margin: 4px 0 6px; }
+  .fork p { font-size: .93rem; }
+
+  /* receipt */
+  .receipt { margin: 34px auto 0; max-width: 420px; background: #fbf7ec; color: var(--ink); padding: 22px 22px 30px;
+    font: .82rem/1.6 "JetBrains Mono", monospace; position: relative;
+    -webkit-mask: radial-gradient(circle 7px at 50% 100%, transparent 6px, #000 7px) 0 0 / 18px 100% repeat-x; }
+  .receipt h4 { text-align: center; margin: 0; font: 700 .95rem "JetBrains Mono", monospace; letter-spacing: .2em; }
+  .receipt .sub { text-align: center; color: #7a7466; margin-bottom: 10px; }
+  .receipt hr { border: 0; border-top: 1px dashed #b8b09c; margin: 10px 0; }
+  .receipt .row { display: flex; gap: 10px; }
+  .receipt .row span:first-child { flex: 1; }
+  .receipt .row .a { font-weight: 600; white-space: nowrap; }
+  .receipt .tot { display: flex; justify-content: space-between; font-weight: 600; }
+  .receipt .print { display: block; margin: 14px auto 0; background: none; border: 1px dashed #7a7466; color: var(--ink);
+    font: 600 .75rem "JetBrains Mono", monospace; padding: 6px 12px; cursor: pointer; }
+
+  /* full map */
+  .map { margin-top: 30px; }
+  .line { position: relative; padding-left: 38px; }
+  .line::before { content: ""; position: absolute; left: 12px; top: 6px; bottom: 6px; width: 6px; border-radius: 3px; background: var(--c); }
+  .line h3 { font: 700 1.1rem Fraunces, serif; color: var(--c); margin: 26px 0 10px; }
+  .line h3 small { display: block; font: 600 .7rem "JetBrains Mono", monospace; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+  .stop { position: relative; margin-bottom: 12px; }
+  .stop::before { content: ""; position: absolute; left: -32px; top: 5px; width: 12px; height: 12px; background: var(--bg);
+    border: 3px solid var(--c); border-radius: 50%; }
+  .stop.q::before { border-radius: 2px; transform: rotate(45deg); background: var(--c); }
+  .stop .t { font-weight: 600; }
+  .stop .b { color: var(--dim); font-size: .9rem; }
+  .stop .to { font: .78rem "JetBrains Mono", monospace; color: var(--dim); margin-top: 2px; }
+  .stop .to i { color: var(--c); font-style: normal; }
+
+  footer { margin-top: 56px; font-size: .8rem; color: var(--dim); border-top: 1px solid #24382c; padding-top: 18px; }
   footer p { margin: 0 0 8px; }
+  footer b { color: var(--cream); }
   [hidden] { display: none !important; }
+  @media print {
+    body { background: #fff; } .mast, .jars, .phase, .card, .nav, footer, .print, .map { display: none !important; }
+    .receipt { -webkit-mask: none; box-shadow: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Where should my next dollar go?</h1>
-    <p>Answer one question at a time. Based on the r/personalfinance flowchart (US).</p>
-  </header>
-
-  <div class="tabs">
-    <button id="tabWalk" class="on">Walk me through it</button>
-    <button id="tabFull">Full chart</button>
+  <div class="mast">
+    <div>
+      <h1>Where does your<br><em>next dollar</em> go?</h1>
+      <p>Seven jars. Fill them in order. Based on the r/personalfinance flowchart (US).</p>
+    </div>
+    <div class="switch">
+      <button id="tabWalk" class="on">Play</button>
+      <button id="tabFull">Map</button>
+    </div>
   </div>
 
   <main id="walk">
-    <div class="phases" id="phaseBar"></div>
-    <div class="phase-label" id="phaseLabel"></div>
+    <div class="jars" id="jars"></div>
+    <div class="phase" id="phase"></div>
     <div class="card" id="card"></div>
     <div class="nav">
       <button id="back">&larr; Back</button>
       <button id="restart">Start over</button>
     </div>
-    <div class="history" id="history"></div>
+    <div id="receipt"></div>
   </main>
 
-  <main id="full" class="full" hidden></main>
+  <main id="full" class="map" hidden></main>
 
   <footer>
-    <p><b>On entertainment spending:</b> it is discretionary. If you are working to get out of debt, keep it as low as you can until high (and maybe moderate) interest debt is paid off. Spend with intent.</p>
-    <p><b>Disclaimer:</b> a supplemental guide, not financial advice. Your situation may differ (income above the Roth IRA limit, Avalanche vs. Snowball, Roth vs. Traditional, etc.). Learn enough to decide for yourself.</p>
-    <p>Original flowchart by u/atlasvoid (2016), based on a flowchart by u/beached89.</p>
+    <p><b>On fun money:</b> it is discretionary. If you are digging out of debt, keep it low until the high (and maybe moderate) interest debt is gone. Spend on purpose.</p>
+    <p><b>Disclaimer:</b> a guide, not financial advice. Your situation may differ (income over the Roth IRA limit, Avalanche vs. Snowball, Roth vs. Traditional). Learn enough to decide for yourself.</p>
+    <p>Original flowchart by u/atlasvoid (2016), based on one by u/beached89. Keys: <b>Y</b> / <b>N</b> / <b>Enter</b> / <b>&larr;</b></p>
   </footer>
 </div>
 
 <script>
 const PHASES = [
-  { name: "Step 0: Budget, cut expenses, set realistic goals", c: "--p0" },
-  { name: "Step 1: Build an emergency fund", c: "--p1" },
-  { name: "Step 2: Employer-sponsored matching funds", c: "--p2" },
-  { name: "Step 3: Pay down high/moderate interest debt", c: "--p3" },
-  { name: "Step 4: Retirement (IRA) and big required expenses", c: "--p4" },
-  { name: "Step 5: Save more for retirement", c: "--p5" },
-  { name: "Step 6: Other goals and advanced methods", c: "--p6" },
+  { name: "Keep the lights on", c: "--p0" },
+  { name: "Cushion the fall", c: "--p1" },
+  { name: "Grab the free money", c: "--p2" },
+  { name: "Kill expensive debt", c: "--p3" },
+  { name: "Future you, part one", c: "--p4" },
+  { name: "Future you, part two", c: "--p5" },
+  { name: "Choose your adventure", c: "--p6" },
 ];
 
-// type: "do" (action, one next), "q" (yes/no question), "end" (final)
+// t: "do" (action), "q" (yes/no), "end"
 const N = {
-  budget:   { p:0, t:"do", title:"Create a budget", body:"Know where your money goes. A budget shows your income minus your expenses.", next:"rent" },
+  budget:   { p:0, t:"do", title:"Make a budget", body:"You cannot route money you cannot see. Income minus expenses, written down.", next:"rent" },
   rent:     { p:0, t:"do", title:"Pay rent or mortgage", body:"Including renters or homeowners insurance, if required.", next:"food" },
-  food:     { p:0, t:"do", title:"Buy food and groceries", body:"Depending on how tight things are, you may want to cover utilities before this.", next:"essentials" },
-  essentials:{ p:0, t:"do", title:"Pay essential items", body:"Power, water, heat, toiletries, etc.", next:"income" },
-  income:   { p:0, t:"do", title:"Pay income-earning expenses", body:"Transportation, maybe internet/phone, anything required to keep earning income.", next:"health" },
+  food:     { p:0, t:"do", title:"Buy food", body:"If things are really tight, you may need to cover utilities first.", next:"essentials" },
+  essentials:{ p:0, t:"do", title:"Pay the essentials", body:"Power, water, heat, toiletries.", next:"income" },
+  income:   { p:0, t:"do", title:"Pay what keeps you earning", body:"Transportation, maybe internet and phone, anything required to keep the paycheck coming.", next:"health" },
   health:   { p:0, t:"do", title:"Pay for health care", body:"Health insurance and health care expenses.", next:"minpay" },
-  minpay:   { p:0, t:"do", title:"Make minimum payments on all debts and loans", body:"Student loans, credit cards, etc.", next:"smallef" },
-  smallef:  { p:1, t:"do", title:"Build a small emergency fund", body:"$1,000 or one month of expenses, whichever is greater. Keep it in savings or checking.", next:"nonessential" },
-  nonessential:{ p:1, t:"do", title:"Pay non-essential bills in full", body:"Cable, internet, phone, etc.", next:"match" },
-  match:    { p:2, t:"q", title:"Does your employer offer a retirement account with a match?", yes:"getmatch", no:"highdebt" },
-  getmatch: { p:2, t:"do", title:"Contribute enough to get the full match", body:"Get the full employer match, but nothing above that amount yet.", next:"highdebt" },
-  highdebt: { p:3, t:"q", title:"Do you have any high interest debt?", body:"Debt at 10% interest or higher.", yes:"payhigh", no:"bigef" },
-  payhigh:  { p:3, t:"do", title:"Pay off high interest debt", body:"Compare Avalanche (highest rate first) and Snowball (smallest balance first). Pick what fits your finances and your psychology.", next:"bigef" },
-  bigef:    { p:1, t:"do", title:"Grow the emergency fund to 3 to 6 months of expenses", body:"Use a savings or checking account.", next:"moddebt" },
-  moddebt:  { p:3, t:"q", title:"Do you have any moderate interest debt?", body:"Remaining debt over 4 to 5% interest, not counting your mortgage.", yes:"paymod", no:"ira" },
-  paymod:   { p:3, t:"do", title:"Pay off moderate interest debt", body:"Same deal: Avalanche vs. Snowball, whichever you will stick with.", next:"ira" },
-  ira:      { p:4, t:"do", title:"Max out an IRA (Roth or Traditional)", body:"Weigh Roth vs. Traditional for your situation, then max the yearly contribution.", next:"bigbuys" },
-  bigbuys:  { p:4, t:"q", title:"Expecting any large, required purchases soon?", body:"College, professional certifications, a car to get to work, etc.", yes:"savebig", no:"fifteen" },
-  savebig:  { p:4, t:"do", title:"Save for those expenses", body:"Put the amount you need in a savings or checking account.", next:"fifteen" },
-  fifteen:  { p:5, t:"q", title:"Are you saving at least 15% of pre-tax income for retirement?", body:"Total across all retirement accounts. You may need more if you are behind.", yes:"hsa", no:"more401k" },
-  more401k: { p:5, t:"q", title:"Does your employer offer a 401(k), 403(b), or similar where you could save more?", yes:"raise401k", no:"selfemp" },
-  raise401k:{ p:5, t:"do", title:"Increase contributions until you hit 15%", body:"Raise your workplace plan contributions until 15% of pre-tax income goes to retirement.", next:"hsa" },
-  selfemp:  { p:5, t:"do", title:"Use another account to reach 15%", body:"Self-employed: Solo 401(k), SEP-IRA, or SIMPLE IRA. Not self-employed: a taxable brokerage account.", next:"hsa" },
-  hsa:      { p:6, t:"q", title:"Do you have a high-deductible health plan, so you can open an HSA?", yes:"maxhsa", no:"kids" },
-  maxhsa:   { p:6, t:"do", title:"Max out your HSA each year", body:"", next:"kids" },
-  kids:     { p:6, t:"q", title:"Do you have kids and want to help pay for college?", yes:"529", no:"done" },
-  "529":    { p:6, t:"do", title:"Save for college", body:"Look at options like a 529 plan and contribute accordingly.", next:"done" },
-  done:     { p:6, t:"end", title:"You have options now", body:"From here it is up to your goals. Pick the path that fits." },
+  minpay:   { p:0, t:"do", title:"Make minimum payments on every debt", body:"Student loans, credit cards, all of it. Minimums only, for now.", next:"smallef" },
+  smallef:  { p:1, t:"do", title:"Build a starter emergency fund", body:"$1,000 or one month of expenses, whichever is bigger. Savings or checking.", next:"nonessential" },
+  nonessential:{ p:1, t:"do", title:"Pay non-essential bills in full", body:"Cable, internet, phone.", next:"match" },
+  match:    { p:2, t:"q", title:"Does your employer match retirement contributions?", yes:"getmatch", no:"highdebt" },
+  getmatch: { p:2, t:"do", title:"Contribute exactly enough to get the full match", body:"Usually an instant 50 to 100% return. Take all of it, but nothing extra yet.", next:"highdebt" },
+  highdebt: { p:3, t:"q", title:"Any debt at 10% interest or higher?", body:"Credit cards, payday loans, some car and personal loans.", yes:"payhigh", no:"bigef" },
+  payhigh:  { p:3, t:"do", title:"Pay off the high interest debt", body:"Avalanche (highest rate first) wins on math. Snowball (smallest balance first) wins on momentum. Pick the one you will finish.", next:"bigef" },
+  bigef:    { p:1, t:"do", title:"Grow the emergency fund to 3 to 6 months", body:"Back to jar two. Top it up in savings or checking.", next:"moddebt" },
+  moddebt:  { p:3, t:"q", title:"Any debt over 4 to 5% interest?", body:"Not counting your mortgage.", yes:"paymod", no:"ira" },
+  paymod:   { p:3, t:"do", title:"Pay off the moderate interest debt", body:"Same choice: Avalanche or Snowball.", next:"ira" },
+  ira:      { p:4, t:"do", title:"Max out an IRA", body:"Choose Roth or Traditional for your situation, then hit the yearly limit.", next:"bigbuys" },
+  bigbuys:  { p:4, t:"q", title:"Big, required purchases coming up?", body:"College, a professional certification, a car you need for work.", yes:"savebig", no:"fifteen" },
+  savebig:  { p:4, t:"do", title:"Save for them now", body:"Park the amount you need in savings or checking.", next:"fifteen" },
+  fifteen:  { p:5, t:"q", title:"Saving at least 15% of pre-tax income for retirement?", body:"Count every retirement account. Aim higher if you started late.", yes:"hsa", no:"more401k" },
+  more401k: { p:5, t:"q", title:"Does your workplace plan have room for more?", body:"401(k), 403(b), or similar.", yes:"raise401k", no:"selfemp" },
+  raise401k:{ p:5, t:"do", title:"Raise contributions until you hit 15%", body:"Bump your workplace plan percentage.", next:"hsa" },
+  selfemp:  { p:5, t:"do", title:"Find another account to reach 15%", body:"Self-employed: Solo 401(k), SEP-IRA, or SIMPLE IRA. Otherwise: a taxable brokerage account.", next:"hsa" },
+  hsa:      { p:6, t:"q", title:"On a high-deductible health plan?", body:"That makes you eligible for an HSA: tax-free in, tax-free growth, tax-free out for medical.", yes:"maxhsa", no:"kids" },
+  maxhsa:   { p:6, t:"do", title:"Max out your HSA every year", body:"Invest it, do not just park it.", next:"kids" },
+  kids:     { p:6, t:"q", title:"Kids, and want to help with college?", yes:"529", no:"done" },
+  "529":    { p:6, t:"do", title:"Fund a college account", body:"Look at a 529 plan and contribute what fits.", next:"done" },
+  done:     { p:6, t:"end", title:"Every jar is full. The rest is yours.", body:"From here it is about what you want your life to look like." },
 };
 
 const $ = id => document.getElementById(id);
+const START = "budget";
 let path = load();
 
 function load() {
-  try { const p = JSON.parse(localStorage.getItem("mf-path")); if (Array.isArray(p) && p.every(x => N[x.id])) return p; } catch {}
-  return [{ id: "budget" }];
+  try { const p = JSON.parse(localStorage.getItem("nd-path")); if (Array.isArray(p) && p.length && p.every(x => N[x.id])) return p; } catch {}
+  return [{ id: START }];
 }
-function save() { try { localStorage.setItem("mf-path", JSON.stringify(path)); } catch {} }
+function save() { try { localStorage.setItem("nd-path", JSON.stringify(path)); } catch {} }
+const edges = n => [n.next, n.yes, n.no].filter(Boolean);
 
-function go(nextId, answer) {
-  path[path.length - 1].a = answer;
-  path.push({ id: nextId });
-  save(); render();
+function reachable(from) {
+  const seen = new Set(), st = [from];
+  while (st.length) { const k = st.pop(); if (seen.has(k)) continue; seen.add(k); edges(N[k]).forEach(x => st.push(x)); }
+  return seen;
 }
 
-function render() {
-  const cur = path[path.length - 1], n = N[cur.id], color = `var(${PHASES[n.p].c})`;
-  $("phaseBar").innerHTML = PHASES.map((ph, i) =>
-    `<div style="background:${i <= n.p ? `var(${ph.c})` : ""}"></div>`).join("");
-  $("phaseLabel").textContent = PHASES[n.p].name;
+// A jar's fill = share of its stops that are behind you (visited, or skipped by your answers).
+function fills() {
+  const cur = path[path.length - 1].id, ahead = reachable(cur);
+  const visited = new Set(path.slice(0, -1).map(s => s.id));
+  return PHASES.map((_, i) => {
+    if (N[cur].t === "end") return 1;
+    const stops = Object.keys(N).filter(k => N[k].p === i && k !== "done");
+    const left = stops.filter(k => ahead.has(k) && !visited.has(k)).length;
+    return (stops.length - left) / stops.length;
+  });
+}
+
+function render(dropCoin) {
+  const cur = path[path.length - 1], n = N[cur.id], c = `var(${PHASES[n.p].c})`;
+
+  const f = fills(), jars = $("jars");
+  if (!jars.children.length) jars.innerHTML = PHASES.map((ph, i) => `<div class="jar" style="--c:var(${ph.c})"><div class="fill" style="height:0"></div><div class="n">${i}</div></div>`).join("");
+  requestAnimationFrame(() => [...jars.children].forEach((el, i) => {
+    el.classList.toggle("cur", i === n.p);
+    el.querySelector(".fill").style.height = Math.round(f[i] * 100) + "%";
+  }));
+  if (dropCoin != null) {
+    const coin = document.createElement("div"); coin.className = "coin"; coin.onanimationend = () => coin.remove();
+    $("jars").children[dropCoin].appendChild(coin);
+  }
+
+  $("phase").style.setProperty("--c", c);
+  $("phase").innerHTML = `<b>Jar ${n.p}</b><span>${PHASES[n.p].name}</span>`;
 
   const card = $("card");
-  card.style.setProperty("--c", color);
-  let html = `<div class="kind">${n.t === "q" ? "Question" : n.t === "end" ? "You made it" : "Do this"}</div>
-    <h2>${n.title}</h2>${n.body ? `<p>${n.body}</p>` : ""}`;
-  if (n.t === "q") {
-    html += `<div class="btns"><button class="primary" data-go="${n.yes}" data-a="Yes">Yes</button>
-      <button data-go="${n.no}" data-a="No">No</button></div>`;
-  } else if (n.t === "do") {
-    html += `<div class="btns"><button class="primary" data-go="${n.next}" data-a="Done">Done, next &rarr;</button></div>`;
-  } else {
-    html += `<div class="goals">
-      <div class="goal"><h3>Want to retire early?</h3><p>Max out your 401(k), 403(b), or other employer plan. Consider the "mega backdoor Roth IRA." Then use a taxable account.</p></div>
-      <div class="goal"><h3>Have more immediate goals?</h3><p>Savings for goals within 3 to 5 years. A conservative mix of stocks and bonds for goals further out. Examples: a home down payment, a vehicle, paying down the mortgage, vacations.</p></div>
+  card.style.setProperty("--c", c);
+  let h = `<div class="kind">${n.t === "q" ? "Question" : n.t === "end" ? "Done" : "Do this"}</div><h2>${n.title}</h2>${n.body ? `<p>${n.body}</p>` : ""}`;
+  if (n.t === "q") h += `<div class="btns"><button class="primary" data-go="${n.yes}" data-a="YES">Yes <kbd>Y</kbd></button><button data-go="${n.no}" data-a="NO">No <kbd>N</kbd></button></div>`;
+  else if (n.t === "do") h += `<div class="btns"><button class="primary" data-go="${n.next}" data-a="DONE">Done, drop a coin <kbd>&crarr;</kbd></button></div>`;
+  else h += `<div class="forks">
+      <div class="fork"><div class="tag">Fork A</div><h3>Retire early</h3><p>Max your 401(k) or 403(b). Look into the mega backdoor Roth. Then pour the rest into a taxable account.</p></div>
+      <div class="fork"><div class="tag">Fork B</div><h3>Nearer goals</h3><p>Under 3 to 5 years away: plain savings. Further out: a conservative stock and bond mix. Think house, car, mortgage payoff, travel.</p></div>
     </div>`;
-  }
-  card.innerHTML = html;
+  card.innerHTML = h;
+  card.classList.remove("enter"); void card.offsetWidth; card.classList.add("enter");
   card.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go, b.dataset.a));
 
   $("back").disabled = path.length < 2;
-  const past = path.slice(0, -1);
-  $("history").innerHTML = past.length ? `<h3>Your path so far</h3><ol>${past.map(s =>
-    `<li><b>${s.a}</b>: ${N[s.id].title}</li>`).join("")}</ol>` : "";
+  renderReceipt();
 }
 
-$("back").onclick = () => { if (path.length > 1) { path.pop(); delete path[path.length - 1].a; save(); render(); } };
-$("restart").onclick = () => { path = [{ id: "budget" }]; save(); render(); };
+function renderReceipt() {
+  const past = path.slice(0, -1);
+  if (!past.length) { $("receipt").innerHTML = ""; return; }
+  const done = past.filter(s => s.a === "DONE").length;
+  const end = N[path[path.length - 1].id].t === "end";
+  $("receipt").innerHTML = `<div class="receipt">
+    <h4>NEXT DOLLAR CO.</h4><div class="sub">${end ? "FINAL RECEIPT" : "RUNNING TAB"} &middot; ${new Date().toLocaleDateString()}</div><hr>
+    ${past.map(s => `<div class="row"><span>${N[s.id].title}</span><span class="a">${s.a}</span></div>`).join("")}
+    <hr><div class="tot"><span>COINS DROPPED</span><span>${done}</span></div>
+    <div class="tot"><span>JARS FULL</span><span>${fills().filter(x => x >= 1).length} / 7</span></div>
+    ${end ? `<hr><div class="sub">THANK YOU. PAY YOURSELF FIRST.</div><button class="print" onclick="print()">PRINT RECEIPT</button>` : ""}
+  </div>`;
+}
 
-function renderFull() {
-  const name = id => N[id].title;
+function go(nextId, answer) {
+  const from = N[path[path.length - 1].id];
+  path[path.length - 1].a = answer;
+  path.push({ id: nextId });
+  save(); render(answer === "DONE" ? from.p : null);
+}
+function back() { if (path.length > 1) { path.pop(); delete path[path.length - 1].a; save(); render(); } }
+
+$("back").onclick = back;
+$("restart").onclick = () => { path = [{ id: START }]; save(); render(); };
+
+document.addEventListener("keydown", e => {
+  if ($("walk").hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  const n = N[path[path.length - 1].id], k = e.key.toLowerCase();
+  if (n.t === "q" && k === "y") go(n.yes, "YES");
+  else if (n.t === "q" && k === "n") go(n.no, "NO");
+  else if (n.t === "do" && k === "enter") { e.preventDefault(); go(n.next, "DONE"); }
+  else if (k === "arrowleft" || k === "backspace") back();
+});
+
+function renderMap() {
+  const t = id => N[id].title;
   $("full").innerHTML = PHASES.map((ph, i) => {
-    const items = Object.entries(N).filter(([, n]) => n.p === i);
-    if (!items.length) return "";
-    return `<section style="--c:var(${ph.c})"><h2>${ph.name}</h2>${items.map(([id, n]) => {
-      let arrows = n.t === "q" ? `Yes &rarr; ${name(n.yes)}<br>No &rarr; ${name(n.no)}`
-        : n.t === "do" ? `Then &rarr; ${name(n.next)}` : "";
-      return `<div class="item"><div class="${n.t === "q" ? "q" : ""}">${n.title}</div>
-        ${n.body ? `<small>${n.body}</small>` : ""}${arrows ? `<div class="arrows">${arrows}</div>` : ""}</div>`;
-    }).join("")}</section>`;
+    const stops = Object.entries(N).filter(([, n]) => n.p === i);
+    return `<div class="line" style="--c:var(${ph.c})"><h3><small>Jar ${i}</small>${ph.name}</h3>${stops.map(([id, n]) => `
+      <div class="stop${n.t === "q" ? " q" : ""}"><div class="t">${n.title}</div>${n.body ? `<div class="b">${n.body}</div>` : ""}
+      <div class="to">${n.t === "q" ? `<i>yes</i> &rarr; ${t(n.yes)}<br><i>no</i> &rarr; ${t(n.no)}` : n.t === "do" ? `<i>then</i> &rarr; ${t(n.next)}` : "<i>fork</i> &rarr; retire early, or nearer goals"}</div></div>`).join("")}</div>`;
   }).join("");
 }
 
@@ -202,7 +309,7 @@ function tab(full) {
 $("tabWalk").onclick = () => tab(false);
 $("tabFull").onclick = () => tab(true);
 
-renderFull();
+renderMap();
 render();
 </script>
 </body>
