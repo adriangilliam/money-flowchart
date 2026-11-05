@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Flowchart</title>
+<meta name="description" content="An interactive walk-through of the r/personalfinance income spending flowchart (US).">
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3e1da;
+    --p0: #4a5560; --p1: #d6362b; --p2: #e2b100; --p3: #1f9d55; --p4: #18a8c9; --p5: #1f6fb2; --p6: #7b3fa0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141416; --card: #1e1e22; --ink: #f2f2f4; --muted: #a0a0a8; --line: #2e2e34; --p0: #9aa8b5; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  header p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .tabs { display: flex; gap: 8px; margin: 20px 0; }
+  .tabs button { flex: 1; padding: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 10px; font: inherit; cursor: pointer; }
+  .tabs button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .phases { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+  .phases div { height: 8px; border-radius: 4px; background: var(--line); }
+  .phase-label { font-size: .85rem; color: var(--muted); margin-bottom: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--c);
+    border-radius: 14px; padding: 22px; }
+  .kind { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--c); font-weight: 700; }
+  .card h2 { font-size: 1.3rem; margin: 6px 0 8px; }
+  .card p { margin: 0; color: var(--muted); }
+  .btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .btns button { flex: 1; min-width: 120px; padding: 14px; border-radius: 10px; font: inherit; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  .btns button.primary { background: var(--c); border-color: var(--c); color: #fff; }
+  .nav { display: flex; justify-content: space-between; margin-top: 14px; }
+  .nav button { background: none; border: none; color: var(--muted); font: inherit; cursor: pointer; padding: 6px 0; }
+  .nav button:disabled { opacity: .35; cursor: default; }
+  .goals { display: grid; gap: 12px; margin-top: 16px; }
+  .goal { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .goal h3 { margin: 0 0 6px; font-size: 1rem; }
+  .goal p { font-size: .95rem; }
+  .history { margin-top: 28px; }
+  .history h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .history ol { padding-left: 20px; margin: 0; color: var(--muted); font-size: .9rem; }
+  .history li b { color: var(--ink); font-weight: 600; }
+  .full section { margin-bottom: 22px; }
+  .full h2 { font-size: 1rem; margin: 0 0 8px; color: var(--c); }
+  .full .item { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--c);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; font-size: .95rem; }
+  .full .item small { display: block; color: var(--muted); }
+  .full .item .q { font-weight: 600; }
+  .full .item .arrows { font-size: .85rem; color: var(--muted); margin-top: 4px; }
+  footer { margin-top: 40px; font-size: .8rem; color: var(--muted); }
+  footer p { margin: 0 0 8px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Where should my next dollar go?</h1>
+    <p>Answer one question at a time. Based on the r/personalfinance flowchart (US).</p>
+  </header>
+
+  <div class="tabs">
+    <button id="tabWalk" class="on">Walk me through it</button>
+    <button id="tabFull">Full chart</button>
+  </div>
+
+  <main id="walk">
+    <div class="phases" id="phaseBar"></div>
+    <div class="phase-label" id="phaseLabel"></div>
+    <div class="card" id="card"></div>
+    <div class="nav">
+      <button id="back">&larr; Back</button>
+      <button id="restart">Start over</button>
+    </div>
+    <div class="history" id="history"></div>
+  </main>
+
+  <main id="full" class="full" hidden></main>
+
+  <footer>
+    <p><b>On entertainment spending:</b> it is discretionary. If you are working to get out of debt, keep it as low as you can until high (and maybe moderate) interest debt is paid off. Spend with intent.</p>
+    <p><b>Disclaimer:</b> a supplemental guide, not financial advice. Your situation may differ (income above the Roth IRA limit, Avalanche vs. Snowball, Roth vs. Traditional, etc.). Learn enough to decide for yourself.</p>
+    <p>Original flowchart by u/atlasvoid (2016), based on a flowchart by u/beached89.</p>
+  </footer>
+</div>
+
+<script>
+const PHASES = [
+  { name: "Step 0: Budget, cut expenses, set realistic goals", c: "--p0" },
+  { name: "Step 1: Build an emergency fund", c: "--p1" },
+  { name: "Step 2: Employer-sponsored matching funds", c: "--p2" },
+  { name: "Step 3: Pay down high/moderate interest debt", c: "--p3" },
+  { name: "Step 4: Retirement (IRA) and big required expenses", c: "--p4" },
+  { name: "Step 5: Save more for retirement", c: "--p5" },
+  { name: "Step 6: Other goals and advanced methods", c: "--p6" },
+];
+
+// type: "do" (action, one next), "q" (yes/no question), "end" (final)
+const N = {
+  budget:   { p:0, t:"do", title:"Create a budget", body:"Know where your money goes. A budget shows your income minus your expenses.", next:"rent" },
+  rent:     { p:0, t:"do", title:"Pay rent or mortgage", body:"Including renters or homeowners insurance, if required.", next:"food" },
+  food:     { p:0, t:"do", title:"Buy food and groceries", body:"Depending on how tight things are, you may want to cover utilities before this.", next:"essentials" },
+  essentials:{ p:0, t:"do", title:"Pay essential items", body:"Power, water, heat, toiletries, etc.", next:"income" },
+  income:   { p:0, t:"do", title:"Pay income-earning expenses", body:"Transportation, maybe internet/phone, anything required to keep earning income.", next:"health" },
+  health:   { p:0, t:"do", title:"Pay for health care", body:"Health insurance and health care expenses.", next:"minpay" },
+  minpay:   { p:0, t:"do", title:"Make minimum payments on all debts and loans", body:"Student loans, credit cards, etc.", next:"smallef" },
+  smallef:  { p:1, t:"do", title:"Build a small emergency fund", body:"$1,000 or one month of expenses, whichever is greater. Keep it in savings or checking.", next:"nonessential" },
+  nonessential:{ p:1, t:"do", title:"Pay non-essential bills in full", body:"Cable, internet, phone, etc.", next:"match" },
+  match:    { p:2, t:"q", title:"Does your employer offer a retirement account with a match?", yes:"getmatch", no:"highdebt" },
+  getmatch: { p:2, t:"do", title:"Contribute enough to get the full match", body:"Get the full employer match, but nothing above that amount yet.", next:"highdebt" },
+  highdebt: { p:3, t:"q", title:"Do you have any high interest debt?", body:"Debt at 10% interest or higher.", yes:"payhigh", no:"bigef" },
+  payhigh:  { p:3, t:"do", title:"Pay off high interest debt", body:"Compare Avalanche (highest rate first) and Snowball (smallest balance first). Pick what fits your finances and your psychology.", next:"bigef" },
+  bigef:    { p:1, t:"do", title:"Grow the emergency fund to 3 to 6 months of expenses", body:"Use a savings or checking account.", next:"moddebt" },
+  moddebt:  { p:3, t:"q", title:"Do you have any moderate interest debt?", body:"Remaining debt over 4 to 5% interest, not counting your mortgage.", yes:"paymod", no:"ira" },
+  paymod:   { p:3, t:"do", title:"Pay off moderate interest debt", body:"Same deal: Avalanche vs. Snowball, whichever you will stick with.", next:"ira" },
+  ira:      { p:4, t:"do", title:"Max out an IRA (Roth or Traditional)", body:"Weigh Roth vs. Traditional for your situation, then max the yearly contribution.", next:"bigbuys" },
+  bigbuys:  { p:4, t:"q", title:"Expecting any large, required purchases soon?", body:"College, professional certifications, a car to get to work, etc.", yes:"savebig", no:"fifteen" },
+  savebig:  { p:4, t:"do", title:"Save for those expenses", body:"Put the amount you need in a savings or checking account.", next:"fifteen" },
+  fifteen:  { p:5, t:"q", title:"Are you saving at least 15% of pre-tax income for retirement?", body:"Total across all retirement accounts. You may need more if you are behind.", yes:"hsa", no:"more401k" },
+  more401k: { p:5, t:"q", title:"Does your employer offer a 401(k), 403(b), or similar where you could save more?", yes:"raise401k", no:"selfemp" },
+  raise401k:{ p:5, t:"do", title:"Increase contributions until you hit 15%", body:"Raise your workplace plan contributions until 15% of pre-tax income goes to retirement.", next:"hsa" },
+  selfemp:  { p:5, t:"do", title:"Use another account to reach 15%", body:"Self-employed: Solo 401(k), SEP-IRA, or SIMPLE IRA. Not self-employed: a taxable brokerage account.", next:"hsa" },
+  hsa:      { p:6, t:"q", title:"Do you have a high-deductible health plan, so you can open an HSA?", yes:"maxhsa", no:"kids" },
+  maxhsa:   { p:6, t:"do", title:"Max out your HSA each year", body:"", next:"kids" },
+  kids:     { p:6, t:"q", title:"Do you have kids and want to help pay for college?", yes:"529", no:"done" },
+  "529":    { p:6, t:"do", title:"Save for college", body:"Look at options like a 529 plan and contribute accordingly.", next:"done" },
+  done:     { p:6, t:"end", title:"You have options now", body:"From here it is up to your goals. Pick the path that fits." },
+};
+
+const $ = id => document.getElementById(id);
+let path = load();
+
+function load() {
+  try { const p = JSON.parse(localStorage.getItem("mf-path")); if (Array.isArray(p) && p.every(x => N[x.id])) return p; } catch {}
+  return [{ id: "budget" }];
+}
+function save() { try { localStorage.setItem("mf-path", JSON.stringify(path)); } catch {} }
+
+function go(nextId, answer) {
+  path[path.length - 1].a = answer;
+  path.push({ id: nextId });
+  save(); render();
+}
+
+function render() {
+  const cur = path[path.length - 1], n = N[cur.id], color = `var(${PHASES[n.p].c})`;
+  $("phaseBar").innerHTML = PHASES.map((ph, i) =>
+    `<div style="background:${i <= n.p ? `var(${ph.c})` : ""}"></div>`).join("");
+  $("phaseLabel").textContent = PHASES[n.p].name;
+
+  const card = $("card");
+  card.style.setProperty("--c", color);
+  let html = `<div class="kind">${n.t === "q" ? "Question" : n.t === "end" ? "You made it" : "Do this"}</div>
+    <h2>${n.title}</h2>${n.body ? `<p>${n.body}</p>` : ""}`;
+  if (n.t === "q") {
+    html += `<div class="btns"><button class="primary" data-go="${n.yes}" data-a="Yes">Yes</button>
+      <button data-go="${n.no}" data-a="No">No</button></div>`;
+  } else if (n.t === "do") {
+    html += `<div class="btns"><button class="primary" data-go="${n.next}" data-a="Done">Done, next &rarr;</button></div>`;
+  } else {
+    html += `<div class="goals">
+      <div class="goal"><h3>Want to retire early?</h3><p>Max out your 401(k), 403(b), or other employer plan. Consider the "mega backdoor Roth IRA." Then use a taxable account.</p></div>
+      <div class="goal"><h3>Have more immediate goals?</h3><p>Savings for goals within 3 to 5 years. A conservative mix of stocks and bonds for goals further out. Examples: a home down payment, a vehicle, paying down the mortgage, vacations.</p></div>
+    </div>`;
+  }
+  card.innerHTML = html;
+  card.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go, b.dataset.a));
+
+  $("back").disabled = path.length < 2;
+  const past = path.slice(0, -1);
+  $("history").innerHTML = past.length ? `<h3>Your path so far</h3><ol>${past.map(s =>
+    `<li><b>${s.a}</b>: ${N[s.id].title}</li>`).join("")}</ol>` : "";
+}
+
+$("back").onclick = () => { if (path.length > 1) { path.pop(); delete path[path.length - 1].a; save(); render(); } };
+$("restart").onclick = () => { path = [{ id: "budget" }]; save(); render(); };
+
+function renderFull() {
+  const name = id => N[id].title;
+  $("full").innerHTML = PHASES.map((ph, i) => {
+    const items = Object.entries(N).filter(([, n]) => n.p === i);
+    if (!items.length) return "";
+    return `<section style="--c:var(${ph.c})"><h2>${ph.name}</h2>${items.map(([id, n]) => {
+      let arrows = n.t === "q" ? `Yes &rarr; ${name(n.yes)}<br>No &rarr; ${name(n.no)}`
+        : n.t === "do" ? `Then &rarr; ${name(n.next)}` : "";
+      return `<div class="item"><div class="${n.t === "q" ? "q" : ""}">${n.title}</div>
+        ${n.body ? `<small>${n.body}</small>` : ""}${arrows ? `<div class="arrows">${arrows}</div>` : ""}</div>`;
+    }).join("")}</section>`;
+  }).join("");
+}
+
+function tab(full) {
+  $("walk").hidden = full; $("full").hidden = !full;
+  $("tabWalk").classList.toggle("on", !full); $("tabFull").classList.toggle("on", full);
+}
+$("tabWalk").onclick = () => tab(false);
+$("tabFull").onclick = () => tab(true);
+
+renderFull();
+render();
+</script>
+</body>
+</html>
